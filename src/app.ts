@@ -5,5 +5,5 @@ import "./tgBot.js";
 sequelize.sync().then(() => {
   console.log('Database sync complete.');
 
-  // setInterval(fetchFeeds, 5 * 60 * 1000); // every 5 minutes
+  setInterval(fetchFeeds, 5 * 60 * 1000); // every 5 minutes
 });

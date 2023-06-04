@@ -3,10 +3,11 @@ dotenv.config();
 import TelegramBot from 'node-telegram-bot-api';
 import { Message } from "./types.js";
 import { fetchFeeds, addKeywords } from './fetchFeeds.js';
+import { Article, Keyword } from './database.js';
 
-const bot = new TelegramBot(process.env.TELEGRAM_TOKEN as string, { polling: true });
+const bot = new TelegramBot(process.env.TELEGRAM_TOKEN as string );
 
-bot.on("polling_error", (msg) => console.log(msg));
+// bot.on("polling_error", (msg) => console.log(msg));
 bot.on('message', async (msg: Message) => {
   const chatId = msg.chat.id;
   const telegram_user_id = msg.from?.id ?? 0;
