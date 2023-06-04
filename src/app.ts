@@ -1,5 +1,6 @@
 import { sequelize } from './database.js';
 import { fetchFeeds } from './fetchFeeds.js';
+import "./tgBot.js";
 
 sequelize.sync().then(() => {
   console.log('Database sync complete.');
