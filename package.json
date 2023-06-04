@@ -1,12 +1,17 @@
 {
   "name": "news-alert-bot",
   "version": "1.0.0",
+  "description": "news updates",
   "main": "dist/app.js",
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/app.js",
-    "bs": "tsc && node dist/app.js"
+    "start": "node --experimental-modules dist/app.js",
+    "build-start": "tsc && node --experimental-modules dist/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rejkpp/news-alert-bot"
   },
   "author": "ramiro.me",
   "license": "MIT",

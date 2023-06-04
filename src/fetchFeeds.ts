@@ -90,6 +90,7 @@ async function fetchFeeds() {
     } catch (error) {
       if (error instanceof Error) {
         console.error(`Error fetching feed ${feed}: ${error.message}`);
+        sendReply (adminGroup, error.message);
       } else {
         console.error(`Error fetching feed ${feed}: `, error);
       }
