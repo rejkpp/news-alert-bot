@@ -1,8 +1,8 @@
 import { sequelize } from './database.js';
-import fetchFeeds from './fetchFeeds.js';
+import { fetchFeeds } from './fetchFeeds.js';
 
 sequelize.sync().then(() => {
   console.log('Database sync complete.');
-  
-  setInterval(fetchFeeds, 60 * 1000); // every hour
+
+  setInterval(fetchFeeds, 5 * 60 * 1000); // every 5 minutes
 });
