@@ -75,7 +75,7 @@ async function fetchFeeds() {
         if (created) {
           const keywords = await Keyword.findAll();
           const matchingKeywords = keywords.filter(keyword =>
-            (item.title as string).includes(keyword.get('word') as string)
+            (item.title as string).toLowerCase().includes((keyword.get('word') as string).toLowerCase())
           );
 
           if (matchingKeywords.length > 0) {
@@ -97,21 +97,24 @@ async function fetchFeeds() {
   }
 }
 
-async function addKeyword(keyword: string, chatId: number) {
-  const [newKeyword, created] = await Keyword.findOrCreate({
-    where: { word: keyword },
-  });
+async function addKeywords(keywords: string[], chatId: number) {
+  // Iterate over the array of keywords
+  for (const keyword of keywords) {
+    const [newKeyword, created] = await Keyword.findOrCreate({
+      where: { word: keyword },
+    });
 
-  if (created) {
-    console.log(`Keyword ${keyword} added.`);
-    const message = `Keyword ${keyword} added.`;
-    await sendReply(chatId, message);
+    if (created) {
+      console.log(`Keyword ${keyword} added.`);
+      const message = `Keyword ${keyword} added.`;
+      await sendReply(chatId, message);
 
-  } else {
-    console.log(`Keyword ${keyword} already exists.`);
-    const message = `Keyword ${keyword} already exists.`;
-    await sendReply(chatId, message);
+    } else {
+      console.log(`Keyword ${keyword} already exists.`);
+      const message = `Keyword ${keyword} already exists.`;
+      await sendReply(chatId, message);
+    }
   }
 }
 
-export { fetchFeeds, addKeyword, toggleFetchMethod };
+export { fetchFeeds, addKeywords, toggleFetchMethod };

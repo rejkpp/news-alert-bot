@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import TelegramBot from 'node-telegram-bot-api';
 import { Message } from "./types.js";
-import { fetchFeeds, addKeyword } from './fetchFeeds.js';
+import { fetchFeeds, addKeywords } from './fetchFeeds.js';
 
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN as string, { polling: true });
 
@@ -52,9 +52,15 @@ bot.onText(addCommand, (msg, match) => {
       sendReply(chatId, `<pre>Ik heb een keyword nodig.</pre>`);
     } else {
       const keywords = rawKeywords.trim().split(/,\s*/);
-      keywords.forEach(async (keyword) => {
-        await addKeyword(keyword, chatId);
-      });
+
+      console.log(keywords);
+      
+      addKeywords(keywords, chatId);
+
+      // keywords.forEach(async (keyword) => {
+      //   await addKeywords(keyword, chatId);
+      // });
+
     }
   }
 });
