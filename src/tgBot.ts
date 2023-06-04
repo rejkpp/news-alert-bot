@@ -38,7 +38,7 @@ const addCommand = /^\/add\b(.*)/;
 bot.onText(addCommand, (msg, match) => {
   const chatId = msg.chat.id;
 
-  if (chatId === Number(process.env.GROUP_ID)) {
+  if (chatId === Number(process.env.GROUP_ID_IDB)) {
     if (!match) {
       // Handle the case when match is null, probably log an error message.
       console.error('No match found');
@@ -53,7 +53,7 @@ bot.onText(addCommand, (msg, match) => {
     } else {
       const keywords = rawKeywords.trim().split(/,\s*/);
       keywords.forEach(async (keyword) => {
-        await addKeyword(keyword);
+        await addKeyword(keyword, chatId);
       });
     }
   }

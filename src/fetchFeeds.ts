@@ -5,7 +5,7 @@ import fetch, { RequestInit } from 'node-fetch';
 import { Article, Keyword } from './database.js';
 import { sendReply } from './tgBot.js';
 
-if (!process.env.GROUP_ID) {
+if (!process.env.GROUP_ID_IDB) {
   throw new Error('GROUP_ID is not defined in your environment variables');
 }
 const idbGroup = Number(process.env.GROUP_ID_IDB);
@@ -83,7 +83,7 @@ async function fetchFeeds() {
             const message = `${item.title}\n\nKeywords: ${keywordStrings.join(', ')}\n\n${item.link}`;
 
             // Send message to Telegram group
-            await sendReply(chatId, message);
+            await sendReply(idbGroup, message);
           }
         }
       }
@@ -97,7 +97,7 @@ async function fetchFeeds() {
   }
 }
 
-async function addKeyword(keyword: string) {
+async function addKeyword(keyword: string, chatId: number) {
   const [newKeyword, created] = await Keyword.findOrCreate({
     where: { word: keyword },
   });
