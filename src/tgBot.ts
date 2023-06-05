@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import TelegramBot from 'node-telegram-bot-api';
 import { Message } from "./types.js";
-import { fetchFeeds, addKeywords } from './fetchFeeds.js';
+import { fetchFeeds, addKeywords, toggleFetchMethod, deleteAllArticles } from './fetchFeeds.js';
 import { Article, Keyword } from './database.js';
 
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN as string, { polling: true });
@@ -24,6 +24,10 @@ bot.on('message', async (msg: Message) => {
 
   if (text === '/run') {
     fetchFeeds();
+  }
+
+  if (text === '/delete') {
+    deleteAllArticles();
   }
 
 });

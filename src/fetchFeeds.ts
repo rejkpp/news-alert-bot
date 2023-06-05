@@ -94,8 +94,6 @@ async function fetchFeeds() {
       } else {
         console.error(`Error fetching feed ${feed}: `, error);
       }
-    } finally{
-      sendReply(idbGroup, `ran fetchFeeds`)
     }
   }
 }
@@ -120,4 +118,9 @@ async function addKeywords(keywords: string[], chatId: number) {
   }
 }
 
-export { fetchFeeds, addKeywords, toggleFetchMethod };
+async function deleteAllArticles() {
+  await Article.destroy({ where: {} });
+  console.log('All articles deleted.');
+}
+
+export { fetchFeeds, addKeywords, toggleFetchMethod, deleteAllArticles };
