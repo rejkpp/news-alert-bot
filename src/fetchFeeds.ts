@@ -73,6 +73,9 @@ async function scanFeeds() {
       }
 
 
+      // boolean flag to track whether any new articles were found in this feed
+      let newArticlesFound = false;
+
       // check each item in the feed
       for (const item of feedData.items) {
         if (!item.title) {
@@ -86,6 +89,8 @@ async function scanFeeds() {
 
         // if the item is newly added to the database, search for matching keywords and send to chat
         if (created) {
+          newArticlesFound = true; // Set the flag to true as a new article has been found
+
           const keywords = await Keyword.findAll();
           const matchingKeywords = keywords.filter(keyword =>
             (item.title as string).toLowerCase().includes((keyword.get('word') as string).toLowerCase())
@@ -106,6 +111,15 @@ async function scanFeeds() {
 
         }
       }
+
+      // After all articles have been processed, check if the flag is true
+      // If it is, send a message to the admin group
+      if (newArticlesFound) {
+        sendReply(adminGroup, `<pre>✅ ${feed}</pre>`);
+      } else {
+        sendReply(adminGroup, `<pre>no new articles\n${feed}</pre>`);
+      }
+
     } catch (error) {
       if (error instanceof Error) {
         console.error(`Error fetching feed ${feed}: ${error.message}`);
