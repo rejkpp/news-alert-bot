@@ -5,9 +5,9 @@ import { Message } from "./types.js";
 import { fetchFeeds, addKeywords } from './fetchFeeds.js';
 import { Article, Keyword } from './database.js';
 
-const bot = new TelegramBot(process.env.TELEGRAM_TOKEN as string );
+const bot = new TelegramBot(process.env.TELEGRAM_TOKEN as string, { polling: true });
 
-// bot.on("polling_error", (msg) => console.log(msg));
+bot.on("polling_error", (msg) => console.log(msg));
 bot.on('message', async (msg: Message) => {
   const chatId = msg.chat.id;
   const telegram_user_id = msg.from?.id ?? 0;
