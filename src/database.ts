@@ -13,7 +13,23 @@ Article.init({
 
 class Keyword extends Model {}
 Keyword.init({
-  word: DataTypes.STRING
-}, { sequelize, modelName: 'keyword' });
+  word: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  chatId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+}, { 
+  sequelize, 
+  modelName: 'keyword',
+  indexes: [
+    {
+      unique: true,
+      fields: ['word', 'chatId']
+    }
+  ]
+});
 
 export { sequelize, Article, Keyword };

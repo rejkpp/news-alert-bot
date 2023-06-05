@@ -1,5 +1,5 @@
 import { sequelize } from './database.js';
-import { fetchFeeds } from './fetchFeeds.js';
+import { scanFeeds } from './fetchFeeds.js';
 import { CronJob } from 'cron';
 
 import "./tgBot.js";
@@ -7,15 +7,16 @@ import "./tgBot.js";
 sequelize.sync().then(() => {
   console.log('Database sync complete.');
 
-  setInterval(fetchFeeds, 1 * 60 * 1000); // every 5 minutes
+  // setInterval(scanFeeds, 5 * 60 * 1000); // every 5 minutes
+
+  // schedule for reminders
+  const remindersJob = new CronJob('*/5 * * * *', async () => {
+    console.log("✅cron started");
+    scanFeeds();
+  }, null, true, "America/Paramaribo");
+
+  remindersJob.start();
+
 });
 
 
-// schedule for reminders
-const remindersJob = new CronJob('*/5 * * * *', async () => {
-  fetchFeeds();
-  console.log("✅cron");
-  
-}, null, true, "America/Paramaribo");
-
-remindersJob.start();

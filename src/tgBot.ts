@@ -2,8 +2,14 @@ import dotenv from 'dotenv';
 dotenv.config();
 import TelegramBot from 'node-telegram-bot-api';
 import { Message } from "./types.js";
-import { fetchFeeds, addKeywords, toggleFetchMethod, deleteAllArticles, listAllKeywords, deleteKeyword } from './fetchFeeds.js';
+import { scanFeeds, addKeywords, toggleFetchMethod, deleteAllArticles, listAllKeywords, deleteKeyword } from './fetchFeeds.js';
 import { Article, Keyword } from './database.js';
+
+const ALLOWED_CHAT_IDS = [
+  Number(process.env.GROUP_ID_IDB),
+  Number(process.env.GROUP_ID_MINE),
+  Number(process.env.GROUP_ID_OTHER)
+];
 
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN as string, { polling: true });
 
@@ -18,10 +24,10 @@ bot.on('message', async (msg: Message) => {
   }
 
   if (text === '/run') {
-    fetchFeeds();
+    scanFeeds();
   }
 
-  if (text === '/delete') {
+  if (text === '/deleteAllArticles') {
     deleteAllArticles();
   }
 
@@ -29,8 +35,12 @@ bot.on('message', async (msg: Message) => {
     listAllKeywords(chatId);
   }
 
+  if (text === '/toggle') {
+    toggleFetchMethod();
+  }
+
   if (chatId === Number(process.env.GROUP_ID_ADMIN)) {
-    if (text === '/delete') {
+    if (text === '/deleteAllArticles') {
       deleteAllArticles();
     }
   }
@@ -48,7 +58,7 @@ const addCommand = /^\/add\b(.*)/;
 bot.onText(addCommand, (msg, match) => {
   const chatId = msg.chat.id;
 
-  if (chatId === Number(process.env.GROUP_ID_IDB)) {
+  if (ALLOWED_CHAT_IDS.includes(chatId)) {
     if (!match) {
       // Handle the case when match is null, probably log an error message.
       console.error('No match found');
@@ -79,7 +89,7 @@ const delCommand = /^\/delete\b(.*)/;
 bot.onText(delCommand, (msg, match) => {
   const chatId = msg.chat.id;
 
-  if (chatId === Number(process.env.GROUP_ID_IDB)) {
+  if (ALLOWED_CHAT_IDS.includes(chatId)) {
     if (!match) {
       // Handle the case when match is null, probably log an error message.
       console.error('No match found');
@@ -118,7 +128,7 @@ async function delay(ms: number) {
 }
 
 async function sendReply(chatId: number, msg: string) {
-  return bot.sendMessage(chatId, msg, { parse_mode: 'HTML' });
+  return bot.sendMessage(chatId, msg, { parse_mode: 'HTML', disable_web_page_preview: false });
 }
 
 export { bot, sendReply, delay };

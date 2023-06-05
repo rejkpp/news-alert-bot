@@ -26,14 +26,15 @@ const feeds = [
   'https://www.starnieuws.com/rss/starnieuws.rss',
 ];
 
-// Change this value to switch between methods
 let useFetch = false;
 
+// this function is to toggle between using node-fetch or rss-parser
 function toggleFetchMethod() {
   useFetch = !useFetch;
 }
 
-async function fetchFeeds() {
+// this function gets the feeds, it scans the feeds, stores new articles in database, finds keyword matches in the title.
+async function scanFeeds() {
   for (const feed of feeds) {
     try {
       console.log(`📀 scanning feed ${feed}`);
@@ -41,6 +42,7 @@ async function fetchFeeds() {
       let feedData;
 
 
+      // get the data from each feed and store it as feedData
       if (useFetch) {
         // ======================
         // USE FETCH TO GET FEED
@@ -64,6 +66,7 @@ async function fetchFeeds() {
       }
 
 
+      // check each item in the feed
       for (const item of feedData.items) {
         if (!item.title) {
           continue;
@@ -74,6 +77,7 @@ async function fetchFeeds() {
           defaults: { link: item.link },
         });
 
+        // if the item is newly added to the database, search for matching keywords and send to chat
         if (created) {
           const keywords = await Keyword.findAll();
           const matchingKeywords = keywords.filter(keyword =>
@@ -81,18 +85,24 @@ async function fetchFeeds() {
           );
 
           if (matchingKeywords.length > 0) {
-            const keywordStrings = matchingKeywords.map(keywordInstance => keywordInstance.get('word'));
+            // const keywordStrings = matchingKeywords.map(keywordInstance => keywordInstance.get('word'));
+            const keywordStrings = [...new Set(matchingKeywords.map(keywordInstance => keywordInstance.get('word')))];
             const message = `${item.title}\n\nKeywords: ${keywordStrings.join(', ')}\n\n${item.link}`;
 
-            // Send message to Telegram group
-            await sendReply(idbGroup, message);
+            // Send message to each unique chatId that has matching keywords
+            const uniqueChatIds = [...new Set(matchingKeywords.map(keyword => keyword.get('chatId') as number))];
+            for (const chatId of uniqueChatIds) {
+              await sendReply(chatId, message);
+            }
+
           }
+
         }
       }
     } catch (error) {
       if (error instanceof Error) {
         console.error(`Error fetching feed ${feed}: ${error.message}`);
-        sendReply (adminGroup, error.message);
+        sendReply(adminGroup, error.message);
       } else {
         console.error(`Error fetching feed ${feed}: `, error);
       }
@@ -104,7 +114,8 @@ async function addKeywords(keywords: string[], chatId: number) {
   // Iterate over the array of keywords
   for (const keyword of keywords) {
     const [newKeyword, created] = await Keyword.findOrCreate({
-      where: { word: keyword },
+      where: { word: keyword, chatId: chatId },
+      defaults: { chatId: chatId },
     });
 
     if (created) {
@@ -121,10 +132,14 @@ async function addKeywords(keywords: string[], chatId: number) {
 }
 
 async function listAllKeywords(chatId: number) {
-  const keywords = await Keyword.findAll();
+  const keywords = await Keyword.findAll({
+    where: {
+      chatId: chatId
+    }
+  });
   const keywordStrings = keywords.map(keywordInstance => keywordInstance.get('word'));
-  const message = `Keywords: ${keywordStrings.join(', ')}`;
-  
+  const message = `Keywords:\n\n<pre>${keywordStrings.join(`\n`)}</pre>`;
+
   await sendReply(chatId, message);
   console.log('All keywords sent to chat.');
 }
@@ -134,7 +149,8 @@ async function deleteKeyword(keywordsToDelete: string[], chatId: number) {
     where: {
       word: {
         [Op.in]: keywordsToDelete
-      }
+      },
+      chatId: chatId
     }
   });
 
@@ -157,4 +173,18 @@ async function deleteAllArticles() {
   console.log('All articles deleted.');
 }
 
-export { fetchFeeds, addKeywords, toggleFetchMethod, deleteAllArticles, listAllKeywords, deleteKeyword };
+async function deleteOldArticles() {
+  const oneDayAgo = new Date();
+  oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+  await Article.destroy({
+    where: {
+      createdAt: {
+        [Op.lt]: oneDayAgo
+      }
+    }
+  });
+}
+
+
+export { scanFeeds, addKeywords, toggleFetchMethod, deleteAllArticles, listAllKeywords, deleteKeyword, deleteOldArticles };
