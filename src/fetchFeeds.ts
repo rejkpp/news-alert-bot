@@ -94,6 +94,8 @@ async function fetchFeeds() {
       } else {
         console.error(`Error fetching feed ${feed}: `, error);
       }
+    } finally{
+      sendReply(idbGroup, `ran fetchFeeds`)
     }
   }
 }
