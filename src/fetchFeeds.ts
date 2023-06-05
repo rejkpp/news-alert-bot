@@ -31,6 +31,13 @@ let useFetch = false;
 // this function is to toggle between using node-fetch or rss-parser
 function toggleFetchMethod() {
   useFetch = !useFetch;
+  let message;
+  if (useFetch) {
+    message = `fetch on`;
+  } else {
+    message = `fetch off`;
+  }
+  sendReply(adminGroup, message)
 }
 
 // this function gets the feeds, it scans the feeds, stores new articles in database, finds keyword matches in the title.

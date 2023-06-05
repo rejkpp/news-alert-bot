@@ -23,26 +23,23 @@ bot.on('message', async (msg: Message) => {
     console.log(msg);
   }
 
-  if (text === '/run') {
-    scanFeeds();
-  }
-
-  if (text === '/deleteAllArticles') {
-    deleteAllArticles();
-  }
-
   if (text === '/list') {
     listAllKeywords(chatId);
-  }
-
-  if (text === '/toggle') {
-    toggleFetchMethod();
   }
 
   if (chatId === Number(process.env.GROUP_ID_ADMIN)) {
     if (text === '/deleteAllArticles') {
       deleteAllArticles();
     }
+
+    if (text === '/toggle') {
+      toggleFetchMethod();
+    }
+
+    if (text === '/run') {
+      scanFeeds();
+    }
+  
   }
 
 });
@@ -54,6 +51,7 @@ bot.on('message', async (msg: Message) => {
 // 
 // =====================
 
+// add keywords command
 const addCommand = /^\/add\b(.*)/;
 bot.onText(addCommand, (msg, match) => {
   const chatId = msg.chat.id;
@@ -85,6 +83,7 @@ bot.onText(addCommand, (msg, match) => {
   }
 });
 
+// delete keywords command
 const delCommand = /^\/delete\b(.*)/;
 bot.onText(delCommand, (msg, match) => {
   const chatId = msg.chat.id;
