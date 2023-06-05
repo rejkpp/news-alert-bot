@@ -14,6 +14,8 @@ sequelize.sync().then(() => {
 // schedule for reminders
 const remindersJob = new CronJob('*/5 * * * *', async () => {
   fetchFeeds();
+  console.log("✅cron");
+  
 }, null, true, "America/Paramaribo");
 
 remindersJob.start();
