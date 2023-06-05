@@ -168,7 +168,7 @@ async function deleteKeyword(keywordsToDelete: string[], chatId: number) {
 async function deleteAllArticles() {
   await Article.destroy({ where: {} });
   const message = `All articles deleted.`;
-  await sendReply(idbGroup, message);
+  await sendReply(adminGroup, message);
 
   console.log('All articles deleted.');
 }
