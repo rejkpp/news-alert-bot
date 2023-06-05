@@ -4,6 +4,8 @@ import Parser from 'rss-parser';
 import fetch, { RequestInit } from 'node-fetch';
 import { Article, Keyword } from './database.js';
 import { sendReply } from './tgBot.js';
+import { Op } from 'sequelize';
+
 
 if (!process.env.GROUP_ID_IDB) {
   throw new Error('GROUP_ID is not defined in your environment variables');
@@ -118,9 +120,41 @@ async function addKeywords(keywords: string[], chatId: number) {
   }
 }
 
+async function listAllKeywords(chatId: number) {
+  const keywords = await Keyword.findAll();
+  const keywordStrings = keywords.map(keywordInstance => keywordInstance.get('word'));
+  const message = `Keywords: ${keywordStrings.join(', ')}`;
+  
+  await sendReply(chatId, message);
+  console.log('All keywords sent to chat.');
+}
+
+async function deleteKeyword(keywordsToDelete: string[], chatId: number) {
+  const result = await Keyword.destroy({
+    where: {
+      word: {
+        [Op.in]: keywordsToDelete
+      }
+    }
+  });
+
+  if (result === 0) {
+    console.log(`None of the keywords were found.`);
+    let message = `None of the keywords were found.`;
+    sendReply(chatId, message);
+  } else {
+    console.log(`${keywordsToDelete} deleted.`);
+    let message = `${keywordsToDelete} deleted.`;
+    sendReply(chatId, message);
+  }
+}
+
 async function deleteAllArticles() {
   await Article.destroy({ where: {} });
+  const message = `All articles deleted.`;
+  await sendReply(idbGroup, message);
+
   console.log('All articles deleted.');
 }
 
-export { fetchFeeds, addKeywords, toggleFetchMethod, deleteAllArticles };
+export { fetchFeeds, addKeywords, toggleFetchMethod, deleteAllArticles, listAllKeywords, deleteKeyword };
