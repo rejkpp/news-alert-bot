@@ -165,6 +165,9 @@ async function listAllKeywords(chatId: number) {
     }
   });
   const keywordStrings = keywords.map(keywordInstance => keywordInstance.get('word'));
+  // Sort the keywords alphabetically
+  keywordStrings.sort();
+
   const message = `Keywords:\n\n<pre>${keywordStrings.join(`\n`)}</pre>`;
 
   await sendReply(chatId, message);
