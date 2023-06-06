@@ -92,9 +92,17 @@ async function scanFeeds() {
           newArticlesFound = true; // Set the flag to true as a new article has been found
 
           const keywords = await Keyword.findAll();
-          const matchingKeywords = keywords.filter(keyword =>
-            (item.title as string).toLowerCase().includes((keyword.get('word') as string).toLowerCase())
-          );
+          const matchingKeywords = keywords.filter(keyword => {
+            // substring/partial matching
+            // (item.title as string).toLowerCase().includes((keyword.get('word') as string).toLowerCase());
+
+            // Split the title into individual words
+            const titleWords = (item.title as string).toLowerCase().split(/\s+/);
+
+            // Check if the keyword is in the list of words
+            return titleWords.includes((keyword.get('word') as string).toLowerCase());
+
+          });
 
           if (matchingKeywords.length > 0) {
             // const keywordStrings = matchingKeywords.map(keywordInstance => keywordInstance.get('word'));
@@ -116,7 +124,7 @@ async function scanFeeds() {
       // If it is, send a message to the admin group
       if (newArticlesFound) {
         sendReply(adminGroup, `<pre>✅ ${feed}</pre>`);
-      } 
+      }
 
     } catch (error) {
       if (error instanceof Error) {
