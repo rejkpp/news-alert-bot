@@ -128,10 +128,13 @@ async function scanFeeds() {
 
     } catch (error) {
       if (error instanceof Error) {
-        console.error(`<pre>❌ Error fetching feed ${feed}: ${error.message}</pre>`);
-        sendReply(adminGroup, error.message);
+        console.error(`❌ Error fetching feed ${feed}: ${error.message}`);
+        let message = `<pre>❌ Error fetching feed ${feed}: ${error.message}</pre>`;
+        sendReply(adminGroup, message);
       } else {
         console.error(`❌ Error fetching feed ${feed}: `, error);
+        let message = `<pre>❌ Error fetching feed ${feed}: ${error}</pre>`;
+        sendReply(adminGroup, message);
       }
     }
   }
