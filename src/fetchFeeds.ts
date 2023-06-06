@@ -116,16 +116,14 @@ async function scanFeeds() {
       // If it is, send a message to the admin group
       if (newArticlesFound) {
         sendReply(adminGroup, `<pre>✅ ${feed}</pre>`);
-      } else {
-        sendReply(adminGroup, `<pre>no new articles\n${feed}</pre>`);
-      }
+      } 
 
     } catch (error) {
       if (error instanceof Error) {
-        console.error(`Error fetching feed ${feed}: ${error.message}`);
+        console.error(`<pre>❌ Error fetching feed ${feed}: ${error.message}</pre>`);
         sendReply(adminGroup, error.message);
       } else {
-        console.error(`Error fetching feed ${feed}: `, error);
+        console.error(`❌ Error fetching feed ${feed}: `, error);
       }
     }
   }

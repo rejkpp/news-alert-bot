@@ -23,7 +23,7 @@ bot.on('message', async (msg: Message) => {
     console.log(msg);
   }
 
-  if (text === '/list') {
+  if (text === '/list' || text === '/list@su_news_bot') {
     listAllKeywords(chatId);
   }
 
