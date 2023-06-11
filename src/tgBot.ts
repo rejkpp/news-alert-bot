@@ -8,6 +8,7 @@ import { Article, Keyword } from './database.js';
 const ALLOWED_CHAT_IDS = [
   Number(process.env.GROUP_ID_IDB),
   Number(process.env.GROUP_ID_MINE),
+  Number(process.env.GROUP_ID_FANO,
   Number(process.env.GROUP_ID_OTHER)
 ];
 
