@@ -10,7 +10,7 @@ sequelize.sync().then(() => {
   // setInterval(scanFeeds, 5 * 60 * 1000); // every 5 minutes
 
   // schedule for reminders
-  const remindersJob = new CronJob('*/5 * * * *', async () => {
+  const remindersJob = new CronJob('*/10 * * * *', async () => {
     console.log("✅cron started");
     scanFeeds();
   }, null, true, "America/Paramaribo");

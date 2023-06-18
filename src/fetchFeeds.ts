@@ -6,25 +6,42 @@ import { Article, Keyword } from './database.js';
 import { sendReply } from './tgBot.js';
 import { Op } from 'sequelize';
 
+// ============
+// DEFINE TYPES FOR TYPESCRIPT
+// ============
+
+interface Link {
+  $: {
+    href: string;
+  };
+}
+
+interface Item {
+  link: string | Link[];
+}
+
+// ============
+
 const adminGroup = Number(process.env.GROUP_ID_ADMIN);
 
 const parser = new Parser({
   headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36' }
 });
 
-const feeds = [
-  'https://dwtonline.com/feed/',
-  'https://www.srherald.com/feed/',
-  'https://www.waterkant.net/feed/',
-  'https://www.dbsuriname.com/feed/',
-  'https://dagbladdewest.com/feed/',
-  'https://www.starnieuws.com/rss/starnieuws.rss',
-];
+const feeds = {
+  'https://dwtonline.com/feed/': 'dwtonline',
+  'https://www.srherald.com/feed/': 'srherald',
+  'https://www.waterkant.net/feed/': 'waterkant',
+  'https://www.dbsuriname.com/feed/': 'dbsuriname',
+  'https://dagbladdewest.com/feed/': 'dagbladdewest',
+  'https://www.starnieuws.com/rss/starnieuws.rss': 'starnieuws',
+  'https://www.youtube.com/feeds/videos.xml?channel_id=UCz-n78QGdFr8JLTZF3dOSvA': 'stvs',
+};
 
 let useFetch = false;
 
 // this function is to toggle between using node-fetch or rss-parser
-function toggleFetchMethod() {
+async function toggleFetchMethod() {
   useFetch = !useFetch;
   let message;
   if (useFetch) {
@@ -32,12 +49,12 @@ function toggleFetchMethod() {
   } else {
     message = `fetch off`;
   }
-  sendReply(adminGroup, message)
+  await sendReply(adminGroup, message)
 }
 
 // this function gets the feeds, it scans the feeds, stores new articles in database, finds keyword matches in the title.
 async function scanFeeds() {
-  for (const feed of feeds) {
+  for (const [feed, name] of Object.entries(feeds)) {
     try {
       console.log(`📀 scanning feed ${feed}`);
 
@@ -91,12 +108,6 @@ async function scanFeeds() {
             // substring/partial matching
             return (item.title as string).toLowerCase().includes((keyword.get('word') as string).toLowerCase());
 
-            // Split the title into individual words
-            // const titleWords = (item.title as string).toLowerCase().split(/\s+/);
-
-            // Check if the keyword is in the list of words
-            // return titleWords.includes((keyword.get('word') as string).toLowerCase());
-
           });
 
           if (matchingKeywords.length > 0) {
@@ -123,18 +134,18 @@ async function scanFeeds() {
       // After all articles have been processed, check if the flag is true
       // If it is, send a message to the admin group
       if (newArticlesFound) {
-        sendReply(adminGroup, `<pre>✅ ${feed}</pre>`);
+        await sendReply(adminGroup, `<pre>✅ ${name}</pre>`);
       }
 
     } catch (error) {
       if (error instanceof Error) {
         console.error(`❌ Error fetching feed ${feed}: ${error.message}`);
         let message = `<pre>❌ Error fetching feed ${feed}: ${error.message}</pre>`;
-        sendReply(adminGroup, message);
+        await sendReply(adminGroup, message);
       } else {
         console.error(`❌ Error fetching feed ${feed}: `, error);
         let message = `<pre>❌ Error fetching feed ${feed}: ${error}</pre>`;
-        sendReply(adminGroup, message);
+        await sendReply(adminGroup, message);
       }
     }
   }
