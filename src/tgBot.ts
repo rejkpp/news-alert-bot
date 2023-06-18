@@ -24,8 +24,13 @@ bot.on('message', async (msg: Message) => {
     console.log(msg);
   }
 
-  if (text === '/list' || text === '/list@su_news_bot') {
-    listAllKeywords(chatId);
+
+  if (ALLOWED_CHAT_IDS.includes(chatId)) {
+    if (text === '/list' || text === '/list@su_news_bot') {
+      listAllKeywords(chatId);
+    }
+  } else {
+    // sendReply(chatId, `<pre>you do not have access to this feature. to request access contact</pre> @ramirodotme`)
   }
 
   if (chatId === Number(process.env.GROUP_ID_ADMIN)) {
@@ -40,7 +45,7 @@ bot.on('message', async (msg: Message) => {
     if (text === '/run') {
       scanFeeds();
     }
-  
+
   }
 
 });
@@ -65,10 +70,15 @@ bot.onText(addCommand, (msg, match) => {
     }
 
     const command = match[0].split(" ", 1)[0];
-    const rawKeywords = match[1];
+    let rawKeywords = match[1];
+
+    // Check if the command is '/add@su_news_bot' without any keyword
+    if (rawKeywords && (rawKeywords.trim() === '@su_news_bot' || rawKeywords.trim() === '@ramiro_tester_bot')) {
+      rawKeywords = '';
+    }
 
     if (!rawKeywords) {
-      sendReply(chatId, `<pre>Ik heb een keyword nodig.</pre>`);
+      sendReply(chatId, `Please enter keyword(s) after the /add command.\n\nExample:\n\n/add someKeyword`);
     } else {
       const keywords = rawKeywords.trim().split(/,\s*/);
 
@@ -97,10 +107,15 @@ bot.onText(delCommand, (msg, match) => {
     }
 
     const command = match[0].split(" ", 1)[0];
-    const rawKeywords = match[1];
+    let rawKeywords = match[1];
+
+    // Check if the command is '/delete@su_news_bot' without any keyword
+    if (rawKeywords && (rawKeywords.trim() === '@su_news_bot' || rawKeywords.trim() === '@ramiro_tester_bot')) {
+      rawKeywords = '';
+    }
 
     if (!rawKeywords) {
-      sendReply(chatId, `<pre>Ik heb een keyword nodig.</pre>`);
+      sendReply(chatId, `Please enter keyword(s) after the /delete command.\n\nExample:\n\n/delete someKeyword`);
     } else {
       const keywords = rawKeywords.trim().split(/,\s*/);
 

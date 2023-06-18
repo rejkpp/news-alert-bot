@@ -6,11 +6,6 @@ import { Article, Keyword } from './database.js';
 import { sendReply } from './tgBot.js';
 import { Op } from 'sequelize';
 
-
-if (!process.env.GROUP_ID_IDB) {
-  throw new Error('GROUP_ID is not defined in your environment variables');
-}
-const idbGroup = Number(process.env.GROUP_ID_IDB);
 const adminGroup = Number(process.env.GROUP_ID_ADMIN);
 
 const parser = new Parser({
@@ -94,24 +89,29 @@ async function scanFeeds() {
           const keywords = await Keyword.findAll();
           const matchingKeywords = keywords.filter(keyword => {
             // substring/partial matching
-            // (item.title as string).toLowerCase().includes((keyword.get('word') as string).toLowerCase());
+            return (item.title as string).toLowerCase().includes((keyword.get('word') as string).toLowerCase());
 
             // Split the title into individual words
-            const titleWords = (item.title as string).toLowerCase().split(/\s+/);
+            // const titleWords = (item.title as string).toLowerCase().split(/\s+/);
 
             // Check if the keyword is in the list of words
-            return titleWords.includes((keyword.get('word') as string).toLowerCase());
+            // return titleWords.includes((keyword.get('word') as string).toLowerCase());
 
           });
 
           if (matchingKeywords.length > 0) {
-            // const keywordStrings = matchingKeywords.map(keywordInstance => keywordInstance.get('word'));
-            const keywordStrings = [...new Set(matchingKeywords.map(keywordInstance => keywordInstance.get('word')))];
-            const message = `${item.title}\n\nKeywords: ${keywordStrings.join(', ')}\n\n${item.link}`;
-
-            // Send message to each unique chatId that has matching keywords
+            // Get unique chatIds
             const uniqueChatIds = [...new Set(matchingKeywords.map(keyword => keyword.get('chatId') as number))];
+
             for (const chatId of uniqueChatIds) {
+              // Filter matching keywords for this chatId
+              const chatKeywords = matchingKeywords.filter(keyword => keyword.get('chatId') === chatId);
+
+              // Get unique words for this chatId
+              const keywordStrings = [...new Set(chatKeywords.map(keywordInstance => keywordInstance.get('word')))];
+
+              // Build and send the message
+              const message = `${item.title}\n\nKeywords: ${keywordStrings.join(', ')}\n\n${item.link}`;
               await sendReply(chatId, message);
             }
 
@@ -168,13 +168,18 @@ async function listAllKeywords(chatId: number) {
     }
   });
   const keywordStrings = keywords.map(keywordInstance => keywordInstance.get('word'));
-  // Sort the keywords alphabetically
-  keywordStrings.sort();
 
-  const message = `Keywords:\n\n<pre>${keywordStrings.join(`\n`)}</pre>`;
+  let message;
+  if (keywordStrings.length === 0) {
+    message = "None of the keywords were found. Use the /add command to add keywords. Example:\n\n/add someKeyword";
+  } else {
+    // Sort the keywords alphabetically
+    keywordStrings.sort();
+    message = `Keywords:\n\n<pre>${keywordStrings.join(`\n`)}</pre>`;
+  }
 
   await sendReply(chatId, message);
-  console.log('All keywords sent to chat.');
+  console.log('Keywords sent to chat.');
 }
 
 async function deleteKeyword(keywordsToDelete: string[], chatId: number) {
@@ -187,15 +192,16 @@ async function deleteKeyword(keywordsToDelete: string[], chatId: number) {
     }
   });
 
+  let message;
   if (result === 0) {
     console.log(`None of the keywords were found.`);
-    let message = `None of the keywords were found.`;
-    sendReply(chatId, message);
+    message = `None of the keywords were found. Use the /list command to check for existing keywords.`;
   } else {
-    console.log(`${keywordsToDelete} deleted.`);
-    let message = `${keywordsToDelete} deleted.`;
-    sendReply(chatId, message);
+    console.log(`Deleted:\n${keywordsToDelete.join('\n')}`);
+    message = `Deleted:\n\n<pre>${keywordsToDelete.join('\n')} </pre>`;
   }
+
+  await sendReply(chatId, message);
 }
 
 async function deleteAllArticles() {
