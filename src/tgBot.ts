@@ -110,9 +110,9 @@ bot.onText(delCommand, (msg, match) => {
     let rawKeywords = match[1];
 
     // Check if the command is '/delete@su_news_bot' without any keyword
-    if (rawKeywords && (rawKeywords.trim() === '@su_news_bot' || rawKeywords.trim() === '@ramiro_tester_bot')) {
-      rawKeywords = '';
-    }
+    // if (rawKeywords && (rawKeywords.trim() === '@su_news_bot' || rawKeywords.trim() === '@ramiro_tester_bot')) {
+    //   rawKeywords = '';
+    // }
 
     if (!rawKeywords) {
       sendReply(chatId, `Please enter keyword(s) after the /delete command.\n\nExample:\n\n/delete someKeyword`);
