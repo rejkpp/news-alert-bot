@@ -51,8 +51,8 @@ async function gitPull() {
 
     await delay(2000);
     sendReply(adminGroup, `<pre>✅ sync with github repo finished</pre>`);
-    await delay(3000);
-    reboot();
+    // await delay(3000);
+    // reboot();
 }
 
 async function build() {
@@ -61,7 +61,7 @@ async function build() {
   execReboot.stdout.on('data', (data) => {
     console.log(`stdout: ${data}`);
   });
-  sendReply(adminGroup, `<pre>✅ app rebooted</pre>`);
+  sendReply(adminGroup, `<pre>✅ yarn build</pre>`);
 
 }
 
