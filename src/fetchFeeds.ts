@@ -28,16 +28,6 @@ const parser = new Parser({
   headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36' }
 });
 
-const feeds = {
-  'https://dwtonline.com/feed/': 'dwtonline',
-  'https://www.srherald.com/feed/': 'srherald',
-  'https://www.waterkant.net/feed/': 'waterkant',
-  'https://www.dbsuriname.com/feed/': 'dbsuriname',
-  'https://dagbladdewest.com/feed/': 'dagbladdewest',
-  'https://www.starnieuws.com/rss/starnieuws.rss': 'starnieuws',
-  'https://www.youtube.com/feeds/videos.xml?channel_id=UCz-n78QGdFr8JLTZF3dOSvA': 'stvs',
-};
-
 let useFetch = false;
 
 // this function is to toggle between using node-fetch or rss-parser
@@ -53,7 +43,7 @@ async function toggleFetchMethod() {
 }
 
 // this function gets the feeds, it scans the feeds, stores new articles in database, finds keyword matches in the title.
-async function scanFeeds() {
+async function scanFeeds(feeds: Record<string, string>) {
   for (const [feed, name] of Object.entries(feeds)) {
     try {
       console.log(`📀 scanning feed ${feed}`);
