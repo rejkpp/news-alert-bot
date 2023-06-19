@@ -56,12 +56,12 @@ sequelize.sync().then(() => {
   // setInterval(scanFeeds, 5 * 60 * 1000); // every 5 minutes
 
   // schedule
-  const newScanJob = new CronJob('*/10 * * * *', async () => {
+  const newScanJob = new CronJob('*/12 * * * *', async () => {
     console.log("✅ news cron started");
     scanFeeds(newsFeeds);
   }, null, true, "America/Paramaribo");
 
-  const ytScanJob = new CronJob('17,37,57 * * * *', async () => {
+  const ytScanJob = new CronJob('17,38,56 * * * *', async () => {
     console.log("✅ yt cron started");
     scanFeeds(ytFeeds);
   }, null, true, "America/Paramaribo");
