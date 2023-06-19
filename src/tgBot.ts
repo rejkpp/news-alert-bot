@@ -3,6 +3,7 @@ dotenv.config();
 import TelegramBot from 'node-telegram-bot-api';
 import { Message } from "./types.js";
 import { scanFeeds, addKeywords, toggleFetchMethod, deleteAllArticles, listAllKeywords, deleteKeyword } from './fetchFeeds.js';
+import { gitUpdate, gitPull, reboot } from './sync.js';
 import { Article, Keyword } from './database.js';
 
 const ALLOWED_CHAT_IDS = [
@@ -88,6 +89,11 @@ bot.on('message', async (msg: Message) => {
     if (text === '/run') {
       scanFeeds(allFeeds);
     }
+
+    if (text === '/sync') {
+      gitUpdate();
+    }
+
 
   }
 
