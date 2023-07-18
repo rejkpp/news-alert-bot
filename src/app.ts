@@ -19,6 +19,7 @@ const newsFeeds = {
   'https://feeds.nos.nl/nosnieuwsalgemeen': 'nosalgemeen',
   'https://feeds.nos.nl/nosnieuwspolitiek': 'nospolitiek',
   'https://cds.gov.sr/de-boodschap/feed/': 'boodschap',
+  'https://www.nu.nl/rss': 'nu.nl',
 };
 
 const ytFeeds = {
