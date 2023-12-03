@@ -16,10 +16,9 @@ const newsFeeds = {
   'https://gov.sr/feed/': 'gov',
   'https://abcsuriname.com/feed/': 'abcsuriname',
   'https://feeds.feedburner.com/ApintieTV': 'apintie',
+  'https://cds.gov.sr/de-boodschap/feed/': 'boodschap',
   'https://feeds.nos.nl/nosnieuwsalgemeen': 'nosalgemeen',
   'https://feeds.nos.nl/nosnieuwspolitiek': 'nospolitiek',
-  'https://cds.gov.sr/de-boodschap/feed/': 'boodschap',
-  'https://www.nu.nl/rss': 'nu.nl',
 };
 
 const ytFeeds = {
