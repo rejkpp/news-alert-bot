@@ -66,7 +66,7 @@ async function build() {
 }
 
 async function reboot() {
-  const execReboot = spawn('pm2', ['restart','7']);
+  const execReboot = spawn('pm2', ['restart','1']);
 
   execReboot.stdout.on('data', (data) => {
     console.log(`stdout: ${data}`);
