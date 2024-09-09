@@ -18,6 +18,7 @@ const newsFeeds = {
   'https://feeds.feedburner.com/ApintieTV': 'apintie',
   'https://feeds.nos.nl/nosnieuwsalgemeen': 'nosalgemeen',
   'https://feeds.nos.nl/nosnieuwspolitiek': 'nospolitiek',
+  'https://politie.sr/feed/': 'politie',
 };
 
 const ytFeeds = {
