@@ -19,6 +19,7 @@ const newsFeeds = {
   'https://feeds.nos.nl/nosnieuwsalgemeen': 'nosalgemeen',
   'https://feeds.nos.nl/nosnieuwspolitiek': 'nospolitiek',
   'https://politie.sr/feed/': 'politie',
+  'https://www.imf.org/en/Publications/RSS?language=eng': 'imf',
 };
 
 const ytFeeds = {
