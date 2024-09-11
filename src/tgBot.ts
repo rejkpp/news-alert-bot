@@ -28,7 +28,7 @@ const allFeeds = {
   'https://feeds.nos.nl/nosnieuwsalgemeen': 'nosalgemeen',
   'https://feeds.nos.nl/nosnieuwspolitiek': 'nospolitiek',
   'https://politie.sr/feed/': 'politie',
-  'https://www.imf.org/en/Publications/RSS': 'imf',
+  'https://www.imf.org/en/Publications/RSS/': 'imf',
   'https://www.youtube.com/feeds/videos.xml?channel_id=UCs-vubxCoIhYeYMuoSRi0hw': 'Stanvaste_Radio',
   'https://www.youtube.com/feeds/videos.xml?channel_id=UCQXwqZdA_SCaELZc0zCAJFw': 'limfmsu8307',
   'https://www.youtube.com/feeds/videos.xml?channel_id=UCvRijg2ZaG75hlE8v93il5A': 'TRISHULBROADCASTINGNETWORK',
