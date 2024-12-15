@@ -92,13 +92,46 @@ async function scanFeeds(feeds: Record<string, string>) {
 
       let feedData;
 
-
-      // get the data from each feed and store it as feedData
-      if (useFetch) {
+      if (feed === 'https://keynews.sr/feed/') {
+        // Create a special parser instance for keynews
+        const keynewsParser = new Parser({
+          headers: keynewsHeaders,
+          customFields: {
+            item: [['content:encoded', 'content']],
+          },
+          defaultRSS: 2.0,
+          xml2js: {
+            normalize: true,
+            normalizeTags: true,
+            strict: false,
+            trim: true,
+            xmlMode: false
+          }
+        });
+        
+        try {
+          feedData = await keynewsParser.parseURL(feed);
+        } catch (parseError) {
+          console.error(`Failed first parse attempt for ${feed}. Error:`, parseError);
+          console.log('Trying with fetch method...');
+          
+          const response = await fetch(feed, { 
+            ...fetchOptions, 
+            headers: keynewsHeaders 
+          });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          let text = await response.text();
+          feedData = await keynewsParser.parseString(text);
+        }
+      } else {
         // ======================
         // USE FETCH TO GET FEED
         // ======================
-        if (feed === 'https://keynews.sr/feed/') {
+        if (useFetch) {
           // Use special headers for keynews
           const response = await fetch(feed, { 
             ...fetchOptions, 
@@ -126,46 +159,7 @@ async function scanFeeds(feeds: Record<string, string>) {
           const text = await response.text();
           feedData = await parser.parseString(text);
         }
-      } else {
-        // ======================
-        // USE PARSER TO GET FEED
-        // ======================
-        try {
-          feedData = await parser.parseURL(feed);
-        } catch (parseError) {
-          console.error(`Failed first parse attempt for ${feed}. Error:`, parseError);
-          console.log('Trying with fetch method...');
-          
-          try {
-            if (feed === 'https://keynews.sr/feed/') {
-              const response = await fetch(feed, { 
-                ...fetchOptions, 
-                headers: keynewsHeaders 
-              });
-              
-              if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-              }
-              
-              let text = await response.text();
-              feedData = await parser.parseString(text);
-            } else {
-              const response = await fetch(feed, fetchOptions);
-              
-              if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-              }
-              
-              let text = await response.text();
-              feedData = await parser.parseString(text);
-            }
-          } catch (fetchError) {
-            console.error(`Failed fetch attempt for ${feed}. Error:`, fetchError);
-            throw fetchError;
-          }
-        }
       }
-
 
       // boolean flag to track whether any new articles were found in this feed
       let newArticlesFound = false;
