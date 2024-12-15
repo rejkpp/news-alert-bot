@@ -137,37 +137,28 @@ async function scanFeeds(feeds: Record<string, string>) {
           console.log('Trying with fetch method...');
           
           try {
-            const response = await fetch(feed, fetchOptions);
-            
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
+            if (feed === 'https://keynews.sr/feed/') {
+              const response = await fetch(feed, { 
+                ...fetchOptions, 
+                headers: keynewsHeaders 
+              });
+              
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              
+              let text = await response.text();
+              feedData = await parser.parseString(text);
+            } else {
+              const response = await fetch(feed, fetchOptions);
+              
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              
+              let text = await response.text();
+              feedData = await parser.parseString(text);
             }
-            
-            let text = await response.text();
-            console.log(`Received content length: ${text.length} bytes`);
-            
-            // Validate that we have a complete XML document
-            if (!text.includes('<?xml') || !text.includes('</rss>')) {
-              console.error('Incomplete or invalid XML received');
-              console.log('Content preview:', text.substring(0, 200)); // Log first 200 chars
-              throw new Error('Invalid XML document');
-            }
-            
-            // More aggressive XML cleaning
-            text = text
-              .replace(/&(?!(?:amp|lt|gt|quot|apos);)/g, '&amp;')
-              .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
-              .replace(/[^\x20-\x7E\t\r\n]/g, '')
-              .replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1')
-              .replace(/[\uFFFD\uFFFE\uFFFF]/g, '') // Remove Unicode replacement characters
-              .trim();
-            
-            // Ensure proper XML structure
-            if (!text.endsWith('</rss>')) {
-              text += '</channel></rss>';
-            }
-            
-            feedData = await parser.parseString(text);
           } catch (fetchError) {
             console.error(`Failed fetch attempt for ${feed}. Error:`, fetchError);
             throw fetchError;
