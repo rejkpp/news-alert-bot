@@ -76,6 +76,7 @@ async function scanFeeds(feeds: Record<string, string>) {
 
         if (response.status < 200 || response.status >= 600) {
           console.error(`Non-okay status code ${response.status} for feed ${feed}`);
+          console.error('Response headers:', [...response.headers.entries()]);
           continue;
         }
 
