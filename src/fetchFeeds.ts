@@ -31,6 +31,17 @@ const parser = new Parser({
     'Accept-Language': 'en-US,en;q=0.5',
     'Connection': 'keep-alive',
     'Upgrade-Insecure-Requests': '1'
+  },
+  customFields: {
+    item: [['content:encoded', 'content']],
+  },
+  defaultRSS: 2.0,
+  xml2js: {
+    normalize: true,
+    normalizeTags: true,
+    strict: false,
+    trim: true,
+    xmlMode: false
   }
 });
 
@@ -86,7 +97,21 @@ async function scanFeeds(feeds: Record<string, string>) {
         // ======================
         // USE PARSER TO GET FEED
         // ======================
-        feedData = await parser.parseURL(feed);
+        try {
+          console.log(`📀 scanning feed ${feed}`);
+          feedData = await parser.parseURL(feed);
+        } catch (parseError) {
+          console.error(`Failed first parse attempt for ${feed}, trying with fetch...`);
+          // If direct parsing fails, try fetch as fallback
+          const response = await fetch(feed, fetchOptions);
+          let text = await response.text();
+          // Clean the XML
+          text = text.replace(/&(?!(?:amp|lt|gt|quot|apos);)/g, '&amp;')
+                     .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+                     .replace(/[^\x20-\x7E\t\r\n]/g, '');
+          
+          feedData = await parser.parseString(text);
+        }
       }
 
 
