@@ -46,7 +46,10 @@ const keynewsHeaders = {
   'Sec-Fetch-Dest': 'feed',
   'Sec-Fetch-Mode': 'navigate',
   'Sec-Fetch-Site': 'same-origin',
-  'Upgrade-Insecure-Requests': '1'
+  'Upgrade-Insecure-Requests': '1',
+  'Cache-Control': 'no-cache',
+  'Pragma': 'no-cache',
+  'Cookie': '' // You might need actual cookies from the site
 };
 
 const parser = new Parser({
