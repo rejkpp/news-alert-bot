@@ -98,7 +98,6 @@ async function scanFeeds(feeds: Record<string, string>) {
         // USE PARSER TO GET FEED
         // ======================
         try {
-          console.log(`📀 scanning feed ${feed}`);
           feedData = await parser.parseURL(feed);
         } catch (parseError) {
           console.error(`Failed first parse attempt for ${feed}. Error:`, parseError);
