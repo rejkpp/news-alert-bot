@@ -119,16 +119,30 @@ async function scanFeeds(feeds: Record<string, string>) {
           console.log(`📀 scanning feed ${feed}`);
           feedData = await parser.parseURL(feed);
         } catch (parseError) {
-          console.error(`Failed first parse attempt for ${feed}, trying with fetch...`);
-          // If direct parsing fails, try fetch as fallback
-          const response = await fetch(feed, fetchOptions);
-          let text = await response.text();
-          // Clean the XML
-          text = text.replace(/&(?!(?:amp|lt|gt|quot|apos);)/g, '&amp;')
-                     .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
-                     .replace(/[^\x20-\x7E\t\r\n]/g, '');
+          console.error(`Failed first parse attempt for ${feed}. Error:`, parseError);
+          console.log('Trying with fetch method...');
           
-          feedData = await parser.parseString(text);
+          try {
+            const response = await fetch(feed, fetchOptions);
+            
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            let text = await response.text();
+            console.log(`Received content length: ${text.length} bytes`);
+            
+            // Clean the XML
+            text = text.replace(/&(?!(?:amp|lt|gt|quot|apos);)/g, '&amp;')
+                       .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+                       .replace(/[^\x20-\x7E\t\r\n]/g, '')
+                       .replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1');
+            
+            feedData = await parser.parseString(text);
+          } catch (fetchError) {
+            console.error(`Failed fetch attempt for ${feed}. Error:`, fetchError);
+            throw fetchError;
+          }
         }
       }
 
