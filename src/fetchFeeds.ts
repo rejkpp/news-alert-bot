@@ -145,11 +145,21 @@ async function scanFeeds(feeds: Record<string, string>) {
     } catch (error) {
       if (error instanceof Error) {
         console.error(`❌ Error fetching feed ${feed}: ${error.message}`);
-        let message = `<pre>❌ Error fetching feed ${feed}: ${error.message}</pre>`;
+        // Escape HTML characters in the error message
+        const escapedMessage = error.message
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+        let message = `<pre>❌ Error fetching feed ${feed}:\n${escapedMessage}</pre>`;
         await sendReply(adminGroup, message);
       } else {
         console.error(`❌ Error fetching feed ${feed}: `, error);
-        let message = `<pre>❌ Error fetching feed ${feed}: ${error}</pre>`;
+        // Convert error to string and escape HTML characters
+        const errorString = String(error)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+        let message = `<pre>❌ Error fetching feed ${feed}:\n${errorString}</pre>`;
         await sendReply(adminGroup, message);
       }
     }
