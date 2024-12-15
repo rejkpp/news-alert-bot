@@ -138,7 +138,6 @@ async function scanFeeds(feeds: Record<string, string>) {
             feedData = await parser.parseString(text);
           } catch (fetchError) {
             console.error(`Failed fetch attempt for ${feed}. Error:`, fetchError);
-            console.error('Full error stack:', fetchError.stack);
             throw fetchError;
           }
         }
