@@ -26,38 +26,20 @@ const adminGroup = Number(process.env.GROUP_ID_ADMIN);
 
 const fetchOptions: RequestInit = {
   headers: {
-    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-    'Accept-Language': 'en-US,en;q=0.9',
-    'Accept-Encoding': 'gzip, deflate, br',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.5',
     'Connection': 'keep-alive',
-    'Cache-Control': 'max-age=0',
-    'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
-    'Sec-Ch-Ua-Mobile': '?0',
-    'Sec-Ch-Ua-Platform': '"Linux"',
-    'Sec-Fetch-Dest': 'document',
-    'Sec-Fetch-Mode': 'navigate',
-    'Sec-Fetch-Site': 'none',
-    'Sec-Fetch-User': '?1',
     'Upgrade-Insecure-Requests': '1'
   }
 };
 
 const parser = new Parser({
   headers: {
-    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-    'Accept-Language': 'en-US,en;q=0.9',
-    'Accept-Encoding': 'gzip, deflate, br',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.5',
     'Connection': 'keep-alive',
-    'Cache-Control': 'max-age=0',
-    'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
-    'Sec-Ch-Ua-Mobile': '?0',
-    'Sec-Ch-Ua-Platform': '"Linux"',
-    'Sec-Fetch-Dest': 'document',
-    'Sec-Fetch-Mode': 'navigate',
-    'Sec-Fetch-Site': 'none',
-    'Sec-Fetch-User': '?1',
     'Upgrade-Insecure-Requests': '1'
   },
   customFields: {
@@ -132,15 +114,31 @@ async function scanFeeds(feeds: Record<string, string>) {
             let text = await response.text();
             console.log(`Received content length: ${text.length} bytes`);
             
-            // Clean the XML
-            text = text.replace(/&(?!(?:amp|lt|gt|quot|apos);)/g, '&amp;')
-                       .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
-                       .replace(/[^\x20-\x7E\t\r\n]/g, '')
-                       .replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1');
+            // Validate that we have a complete XML document
+            if (!text.includes('<?xml') || !text.includes('</rss>')) {
+              console.error('Incomplete or invalid XML received');
+              console.log('Content preview:', text.substring(0, 200)); // Log first 200 chars
+              throw new Error('Invalid XML document');
+            }
+            
+            // More aggressive XML cleaning
+            text = text
+              .replace(/&(?!(?:amp|lt|gt|quot|apos);)/g, '&amp;')
+              .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+              .replace(/[^\x20-\x7E\t\r\n]/g, '')
+              .replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1')
+              .replace(/[\uFFFD\uFFFE\uFFFF]/g, '') // Remove Unicode replacement characters
+              .trim();
+            
+            // Ensure proper XML structure
+            if (!text.endsWith('</rss>')) {
+              text += '</channel></rss>';
+            }
             
             feedData = await parser.parseString(text);
           } catch (fetchError) {
             console.error(`Failed fetch attempt for ${feed}. Error:`, fetchError);
+            console.error('Full error stack:', fetchError.stack);
             throw fetchError;
           }
         }
