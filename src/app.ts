@@ -51,7 +51,7 @@ const ytFeeds = {
   'https://www.youtube.com/feeds/videos.xml?channel_id=UC6vyDMCCHcgO1bDi6nCehFg': '@wwf-guianas1895',
   // 'https://www.youtube.com/feeds/videos.xml?channel_id=UCxl9JzYJPxGhDzdmfZlJgiQ': '@JoinUN75',
   'https://www.youtube.com/feeds/videos.xml?channel_id=UCGwkWczHlZQxm_d8MLDFRbg': '@verenigingeconomistensurin6507',
-  'https://www.youtube.com/feeds/videos.xml?channel_id=UCWB3Ra7gbog5cDrKxwFWG2A': '@staatsolie2002',
+  ' https://www.youtube.com/feeds/videos.xml?channel_id=UCWB3Ra7gbog5cDrKxwFWG2A': '@staatsolie2002',
 };
 
 sequelize.sync().then(() => {

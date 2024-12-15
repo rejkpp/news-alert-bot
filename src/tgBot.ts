@@ -28,7 +28,7 @@ const allFeeds = {
   'https://feeds.nos.nl/nosnieuwsalgemeen': 'nosalgemeen',
   'https://feeds.nos.nl/nosnieuwspolitiek': 'nospolitiek',
   'https://politie.sr/feed/': 'politie',
-  'https://www.imf.org/en/Publications/RSS/': 'imf',
+  // 'https://www.imf.org/en/Publications/RSS/': 'imf',
   'https://www.youtube.com/feeds/videos.xml?channel_id=UCs-vubxCoIhYeYMuoSRi0hw': 'Stanvaste_Radio',
   'https://www.youtube.com/feeds/videos.xml?channel_id=UCQXwqZdA_SCaELZc0zCAJFw': 'limfmsu8307',
   'https://www.youtube.com/feeds/videos.xml?channel_id=UCvRijg2ZaG75hlE8v93il5A': 'TRISHULBROADCASTINGNETWORK',
@@ -55,7 +55,7 @@ const allFeeds = {
   'https://www.youtube.com/feeds/videos.xml?channel_id=UCspvMaJDuJZ2J1e312R9ndg': 'ministerievanarbeidwerkgel9099',
   'https://www.youtube.com/feeds/videos.xml?channel_id=UCFrlkz1r-EDUxxaBA5nTwvg': 'funparamaribo314',
   'https://www.youtube.com/feeds/videos.xml?channel_id=UC6vyDMCCHcgO1bDi6nCehFg': 'wwf-guianas1895',
-  'https://www.youtube.com/feeds/videos.xml?channel_id=UCxl9JzYJPxGhDzdmfZlJgiQ': 'JoinUN75',
+  // 'https://www.youtube.com/feeds/videos.xml?channel_id=UCxl9JzYJPxGhDzdmfZlJgiQ': 'JoinUN75',
   'https://www.youtube.com/feeds/videos.xml?channel_id=UCGwkWczHlZQxm_d8MLDFRbg': 'verenigingeconomistensurin6507',
   'https://www.youtube.com/feeds/videos.xml?channel_id=UCWB3Ra7gbog5cDrKxwFWG2A': 'staatsolie2002',
 };
