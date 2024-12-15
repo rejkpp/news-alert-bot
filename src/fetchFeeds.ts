@@ -34,6 +34,21 @@ const fetchOptions: RequestInit = {
   }
 };
 
+const keynewsHeaders = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  'Accept': 'application/rss+xml,application/xml;q=0.9,*/*;q=0.8',
+  'Accept-Language': 'en-US,en;q=0.5',
+  'Accept-Encoding': 'gzip, deflate, br',
+  'Connection': 'keep-alive',
+  'Referer': 'https://keynews.sr/',
+  'Origin': 'https://keynews.sr',
+  'DNT': '1',
+  'Sec-Fetch-Dest': 'feed',
+  'Sec-Fetch-Mode': 'navigate',
+  'Sec-Fetch-Site': 'same-origin',
+  'Upgrade-Insecure-Requests': '1'
+};
+
 const parser = new Parser({
   headers: {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36',
@@ -83,16 +98,34 @@ async function scanFeeds(feeds: Record<string, string>) {
         // ======================
         // USE FETCH TO GET FEED
         // ======================
-        const response = await fetch(feed, fetchOptions);
+        if (feed === 'https://keynews.sr/feed/') {
+          // Use special headers for keynews
+          const response = await fetch(feed, { 
+            ...fetchOptions, 
+            headers: keynewsHeaders 
+          });
 
-        if (response.status < 200 || response.status >= 600) {
-          console.error(`Non-okay status code ${response.status} for feed ${feed}`);
-          console.error('Response headers:', [...response.headers.entries()]);
-          continue;
+          if (response.status < 200 || response.status >= 600) {
+            console.error(`Non-okay status code ${response.status} for feed ${feed}`);
+            console.error('Response headers:', [...response.headers.entries()]);
+            continue;
+          }
+
+          const text = await response.text();
+          feedData = await parser.parseString(text);
+        } else {
+          // Use normal headers for other feeds
+          const response = await fetch(feed, fetchOptions);
+
+          if (response.status < 200 || response.status >= 600) {
+            console.error(`Non-okay status code ${response.status} for feed ${feed}`);
+            console.error('Response headers:', [...response.headers.entries()]);
+            continue;
+          }
+
+          const text = await response.text();
+          feedData = await parser.parseString(text);
         }
-
-        const text = await response.text();
-        feedData = await parser.parseString(text);
       } else {
         // ======================
         // USE PARSER TO GET FEED
