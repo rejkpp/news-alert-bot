@@ -24,34 +24,6 @@ interface Item {
 
 const adminGroup = Number(process.env.GROUP_ID_ADMIN);
 
-const fetchOptions: RequestInit = {
-  headers: {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-    'Accept-Language': 'en-US,en;q=0.5',
-    'Connection': 'keep-alive',
-    'Upgrade-Insecure-Requests': '1'
-  }
-};
-
-const keynewsHeaders = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-  'Accept': 'application/rss+xml,application/xml;q=0.9,*/*;q=0.8',
-  'Accept-Language': 'en-US,en;q=0.5',
-  'Accept-Encoding': 'gzip, deflate, br',
-  'Connection': 'keep-alive',
-  'Referer': 'https://keynews.sr/',
-  'Origin': 'https://keynews.sr',
-  'DNT': '1',
-  'Sec-Fetch-Dest': 'feed',
-  'Sec-Fetch-Mode': 'navigate',
-  'Sec-Fetch-Site': 'same-origin',
-  'Upgrade-Insecure-Requests': '1',
-  'Cache-Control': 'no-cache',
-  'Pragma': 'no-cache',
-  'Cookie': '' // You might need actual cookies from the site
-};
-
 const parser = new Parser({
   headers: {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36',
@@ -59,17 +31,6 @@ const parser = new Parser({
     'Accept-Language': 'en-US,en;q=0.5',
     'Connection': 'keep-alive',
     'Upgrade-Insecure-Requests': '1'
-  },
-  customFields: {
-    item: [['content:encoded', 'content']],
-  },
-  defaultRSS: 2.0,
-  xml2js: {
-    normalize: true,
-    normalizeTags: true,
-    strict: false,
-    trim: true,
-    xmlMode: false
   }
 });
 
@@ -95,74 +56,38 @@ async function scanFeeds(feeds: Record<string, string>) {
 
       let feedData;
 
-      if (feed === 'https://keynews.sr/feed/') {
-        // Create a special parser instance for keynews
-        const keynewsParser = new Parser({
-          headers: keynewsHeaders,
-          customFields: {
-            item: [['content:encoded', 'content']],
-          },
-          defaultRSS: 2.0,
-          xml2js: {
-            normalize: true,
-            normalizeTags: true,
-            strict: false,
-            trim: true,
-            xmlMode: false
-          }
-        });
-        
-        try {
-          feedData = await keynewsParser.parseURL(feed);
-        } catch (parseError) {
-          console.error(`Failed first parse attempt for ${feed}. Error:`, parseError);
-          console.log('Trying with fetch method...');
-          
-          const response = await fetch(feed, { 
-            ...fetchOptions, 
-            headers: keynewsHeaders 
-          });
-          
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          
-          let text = await response.text();
-          feedData = await keynewsParser.parseString(text);
-        }
-      } else {
+
+      // get the data from each feed and store it as feedData
+      if (useFetch) {
         // ======================
         // USE FETCH TO GET FEED
         // ======================
-        if (useFetch) {
-          // Use special headers for keynews
-          const response = await fetch(feed, { 
-            ...fetchOptions, 
-            headers: keynewsHeaders 
-          });
-
-          if (response.status < 200 || response.status >= 600) {
-            console.error(`Non-okay status code ${response.status} for feed ${feed}`);
-            console.error('Response headers:', [...response.headers.entries()]);
-            continue;
+        const fetchOptions: RequestInit = {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1'
           }
+        };
 
-          const text = await response.text();
-          feedData = await parser.parseString(text);
-        } else {
-          // Use normal headers for other feeds
-          const response = await fetch(feed, fetchOptions);
+        const response = await fetch(feed, fetchOptions);
 
-          if (response.status < 200 || response.status >= 600) {
-            console.error(`Non-okay status code ${response.status} for feed ${feed}`);
-            console.error('Response headers:', [...response.headers.entries()]);
-            continue;
-          }
-
-          const text = await response.text();
-          feedData = await parser.parseString(text);
+        if (response.status < 200 || response.status >= 600) {
+          console.error(`Non-okay status code ${response.status} for feed ${feed}`);
+          continue;
         }
+
+        const text = await response.text();
+        feedData = await parser.parseString(text);
+      } else {
+        // ======================
+        // USE PARSER TO GET FEED
+        // ======================
+        feedData = await parser.parseURL(feed);
       }
+
 
       // boolean flag to track whether any new articles were found in this feed
       let newArticlesFound = false;
@@ -219,21 +144,11 @@ async function scanFeeds(feeds: Record<string, string>) {
     } catch (error) {
       if (error instanceof Error) {
         console.error(`❌ Error fetching feed ${feed}: ${error.message}`);
-        // Escape HTML characters in the error message
-        const escapedMessage = error.message
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;');
-        let message = `<pre>❌ Error fetching feed ${feed}:\n${escapedMessage}</pre>`;
+        let message = `<pre>❌ Error fetching feed ${feed}: ${error.message}</pre>`;
         await sendReply(adminGroup, message);
       } else {
         console.error(`❌ Error fetching feed ${feed}: `, error);
-        // Convert error to string and escape HTML characters
-        const errorString = String(error)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;');
-        let message = `<pre>❌ Error fetching feed ${feed}:\n${errorString}</pre>`;
+        let message = `<pre>❌ Error fetching feed ${feed}: ${error}</pre>`;
         await sendReply(adminGroup, message);
       }
     }
